@@ -14,16 +14,24 @@ class ChatViewModel: ObservableObject {
 
     func sendMessage() {
         guard !inputText.isEmpty else { return }
-        
-        let newMessage = ChatMessage(id: UUID(), text: inputText, isUser: true)
-        messages.append(newMessage)
+
+        let userMessage = ChatMessage(id: UUID(), text: inputText, isUser: true) // Agregar `id: UUID()`
+        messages.append(userMessage)
+        let userText = inputText
         inputText = ""
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.isTyping = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        isTyping = true
+
+        ChatService.getAIResponse(for: userText) { response in
+            DispatchQueue.main.async {
                 self.isTyping = false
-                self.messages.append(ChatMessage(id: UUID(), text: "This is an AI response.", isUser: false))
+                if let reply = response {
+                    let botMessage = ChatMessage(id: UUID(), text: reply, isUser: false)
+                    self.messages.append(botMessage)
+                } else {
+                    let errorMessage = ChatMessage(id: UUID(), text: "Sorry, I couldn’t understand that.", isUser: false)  
+                    self.messages.append(errorMessage)
+                }
             }
         }
     }

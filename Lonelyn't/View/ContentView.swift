@@ -13,12 +13,9 @@ struct ChatView: View {
 
     var body: some View {
         ZStack {
-            // Fondo Animado con Figuras en Movimiento
-            AnimatedBackground()
-            
-            // Capa "glassy" con blur
-            BlurView()
-            
+            AnimatedBackground() // Fondo animado
+            BlurView() // Capa de desenfoque tipo "glassy"
+
             VStack {
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -27,7 +24,7 @@ struct ChatView: View {
                                 messageView(message)
                                     .transition(.move(edge: .bottom).combined(with: .opacity))
                             }
-                            
+
                             if viewModel.isTyping {
                                 typingIndicator()
                                     .transition(.opacity)
@@ -47,18 +44,17 @@ struct ChatView: View {
             }
             .background(Color(UIColor.systemGroupedBackground).opacity(0.2))
             .animation(.easeInOut, value: viewModel.messages.count)
-            
-            // Empty Placeholder (se muestra si no hay mensajes)
+
             if viewModel.messages.isEmpty {
                 emptyChatPlaceholder()
-                    .allowsHitTesting(false) // Evita que bloquee interacciones con el TextField
+                    .allowsHitTesting(false)
             }
         }
         .onTapGesture {
-            isInputActive = false // Oculta el teclado al tocar fuera del campo de texto
+            isInputActive = false
         }
     }
-    
+
     private func emptyChatPlaceholder() -> some View {
         VStack {
             Image(systemName: "bubble.left.and.bubble.right.fill")
@@ -72,8 +68,8 @@ struct ChatView: View {
                 .foregroundColor(.gray.opacity(0.7))
                 .padding(.top, 10)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity) // Ocupa todo el espacio
-        .background(Color.clear) // Fondo transparente
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
 
     private func messageView(_ message: ChatMessage) -> some View {
@@ -84,7 +80,6 @@ struct ChatView: View {
                     .padding(12)
                     .background(Color.blue)
                     .foregroundColor(.white)
-                    .font(.system(size: 16, weight: .medium))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .frame(maxWidth: 250, alignment: .trailing)
                     .padding(.trailing, 10)
@@ -93,7 +88,6 @@ struct ChatView: View {
                     .padding(12)
                     .background(Color(UIColor.secondarySystemBackground))
                     .foregroundColor(.primary)
-                    .font(.system(size: 16))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .frame(maxWidth: 250, alignment: .leading)
                     .padding(.leading, 10)
@@ -108,7 +102,6 @@ struct ChatView: View {
             Text("AI is typing...")
                 .italic()
                 .foregroundColor(.gray)
-                .font(.system(size: 14))
             Spacer()
         }
         .padding(.horizontal, 16)
@@ -120,60 +113,86 @@ struct ChatView: View {
                 .padding(12)
                 .background(Color(UIColor.tertiarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 16))
-                .font(.system(size: 16))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                 )
-                .focused($isInputActive)  // Enfoca el campo de texto
+                .frame(height: 44) // 🔹 Igual altura que el botón
+                .focused($isInputActive)
 
-            if isInputActive {  // Solo se muestra cuando el teclado está activo
+            // 🔹 Animación más suave para mostrar y ocultar el botón del teclado
+            if isInputActive {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     Button(action: {
-                        isInputActive = false // Oculta el teclado
+                        withAnimation(.easeInOut(duration: 0.3)) { // 🔹 Suaviza la ocultación del teclado
+                            isInputActive = false
+                        }
                     }) {
                         Image(systemName: "keyboard.chevron.compact.down")
                             .font(.system(size: 20))
                             .foregroundColor(.gray)
                             .padding(10)
                     }
+                    .transition(.opacity.combined(with: .move(edge: .trailing))) // 🔹 Transición fluida
                 }
             }
-            
+
             Button(action: viewModel.sendMessage) {
                 Image(systemName: "paperplane.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(.white)
+                    .foregroundColor(viewModel.inputText.isEmpty ? .gray : .white)
                     .padding()
-                    .background(viewModel.inputText.isEmpty ? Color.gray : Color.blue)
+                    .background(viewModel.inputText.isEmpty ? Color(UIColor.systemGray4) : Color.blue)
                     .clipShape(Circle())
             }
+            .frame(height: 44) // 🔹 Igual altura que el TextField
             .disabled(viewModel.inputText.isEmpty)
         }
         .padding()
+        .animation(.easeInOut(duration: 0.3), value: isInputActive) // 🔹 Suaviza la animación del teclado
     }
 }
 
-// 🎨 Fondo animado con figuras en movimiento
 struct AnimatedBackground: View {
-    @State private var animate = false
+    @State private var circles: [CircleData] = (0..<5).map { _ in CircleData() }
 
     var body: some View {
-        ZStack {
-            ForEach(0..<5, id: \.self) { index in
-                Circle()
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color.red.opacity(0.6), Color.purple.opacity(0.4)]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(width: CGFloat.random(in: 150...300), height: CGFloat.random(in: 150...300))
-                    .position(x: CGFloat.random(in: 0...UIScreen.main.bounds.width), y: CGFloat.random(in: 0...UIScreen.main.bounds.height))
-                    .blur(radius: 50)
-                    .opacity(0.8)
-                    .offset(x: animate ? CGFloat.random(in: -100...100) : 0,
-                            y: animate ? CGFloat.random(in: -100...100) : 0)
-                    .animation(Animation.easeInOut(duration: 6).repeatForever(autoreverses: true))
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(circles.indices, id: \.self) { index in
+                    Circle()
+                        .fill(LinearGradient(gradient: Gradient(colors: [Color.red.opacity(0.6), Color.purple.opacity(0.4)]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: circles[index].size, height: circles[index].size)
+                        .blur(radius: 50)
+                        .opacity(circles[index].opacity)
+                        .position(circles[index].position)
+                        .onAppear {
+                            moveCircle(index: index, geometry: geometry)
+                        }
+                }
             }
+            .ignoresSafeArea()
         }
-        .onAppear {
-            animate.toggle()
+    }
+
+    // 📌 Modelo para cada círculo
+    struct CircleData {
+        var position: CGPoint = .zero
+        var size: CGFloat = CGFloat.random(in: 150...300)
+        var opacity: Double = Double.random(in: 0.5...0.9)
+    }
+
+    // 🔄 Mueve cada círculo de forma independiente
+    private func moveCircle(index: Int, geometry: GeometryProxy) {
+        let newX = CGFloat.random(in: 0...geometry.size.width)
+        let newY = CGFloat.random(in: 0...geometry.size.height)
+
+        withAnimation(Animation.easeInOut(duration: Double.random(in: 4...8)).repeatForever(autoreverses: true)) {
+            circles[index].position = CGPoint(x: newX, y: newY)
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 4...8)) {
+            moveCircle(index: index, geometry: geometry)
         }
     }
 }
