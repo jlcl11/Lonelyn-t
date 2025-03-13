@@ -13,8 +13,8 @@ struct ChatView: View {
 
     var body: some View {
         ZStack {
-            AnimatedBackground() // Fondo animado
-            BlurView() // Capa de desenfoque tipo "glassy"
+            AnimatedBackground()
+            BlurView()
 
             VStack {
                 ScrollViewReader { proxy in
@@ -78,19 +78,59 @@ struct ChatView: View {
                 Spacer()
                 Text(message.text)
                     .padding(12)
-                    .background(Color.blue)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.blue)
+                    )
                     .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
                     .frame(maxWidth: 250, alignment: .trailing)
                     .padding(.trailing, 10)
+                    .contentShape(Rectangle()) // 🔹 Fuerza a que solo esta área sea interactiva
+                    .contextMenu {
+                        Button(action: { viewModel.copyMessage(message) }) {
+                            Label("Copy", systemImage: "doc.on.doc")
+                        }
+                        Button(action: { viewModel.editMessage(message) }) {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        Button(action: { viewModel.replyToMessage(message) }) {
+                            Label("Reply", systemImage: "arrowshape.turn.up.left")
+                        }
+                        Button(action: { viewModel.speakMessage(message) }) {
+                            Label("Read Aloud", systemImage: "speaker.2.fill")
+                        }
+                        Button(action: { viewModel.shareMessage(message.text) }) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        Button(role: .destructive, action: { viewModel.deleteMessage(message) }) {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
             } else {
                 Text(message.text)
                     .padding(12)
-                    .background(Color(UIColor.secondarySystemBackground))
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(UIColor.secondarySystemBackground))
+                    )
                     .foregroundColor(.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
                     .frame(maxWidth: 250, alignment: .leading)
                     .padding(.leading, 10)
+                    .contentShape(Rectangle()) // 🔹 Limita la interacción solo a la burbuja
+                    .contextMenu {
+                        Button(action: { viewModel.copyMessage(message) }) {
+                            Label("Copy", systemImage: "doc.on.doc")
+                        }
+                        Button(action: { viewModel.replyToMessage(message) }) {
+                            Label("Reply", systemImage: "arrowshape.turn.up.left")
+                        }
+                        Button(action: { viewModel.speakMessage(message) }) {
+                            Label("Read Aloud", systemImage: "speaker.2.fill")
+                        }
+                        Button(action: { viewModel.shareMessage(message.text) }) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                    }
                 Spacer()
             }
         }
@@ -113,29 +153,7 @@ struct ChatView: View {
                 .padding(12)
                 .background(Color(UIColor.tertiarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 16))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                )
-                .frame(height: 44) // 🔹 Igual altura que el botón
                 .focused($isInputActive)
-
-            // 🔹 Animación más suave para mostrar y ocultar el botón del teclado
-            if isInputActive {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.3)) { // 🔹 Suaviza la ocultación del teclado
-                            isInputActive = false
-                        }
-                    }) {
-                        Image(systemName: "keyboard.chevron.compact.down")
-                            .font(.system(size: 20))
-                            .foregroundColor(.gray)
-                            .padding(10)
-                    }
-                    .transition(.opacity.combined(with: .move(edge: .trailing))) // 🔹 Transición fluida
-                }
-            }
 
             Button(action: viewModel.sendMessage) {
                 Image(systemName: "paperplane.fill")
@@ -145,7 +163,6 @@ struct ChatView: View {
                     .background(viewModel.inputText.isEmpty ? Color(UIColor.systemGray4) : Color.blue)
                     .clipShape(Circle())
             }
-            .frame(height: 44) // 🔹 Igual altura que el TextField
             .disabled(viewModel.inputText.isEmpty)
         }
         .padding()
