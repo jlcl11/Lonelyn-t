@@ -9,7 +9,7 @@ import Foundation
 
 class ChatService {
     private static let apiURL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
-    private static let apiKey = "Bearer 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"  
+    private static let apiKey = "Bearer YOUR_HF_TOKEN"  
 
     static func getAIResponse(for message: String, completion: @escaping (String?) -> Void) {
         guard let url = URL(string: apiURL) else {
