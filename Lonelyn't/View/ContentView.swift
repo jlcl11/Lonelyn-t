@@ -9,20 +9,21 @@ import SwiftUI
 
 struct ChatView: View {
     @StateObject private var viewModel = ChatViewModel()
-    @FocusState private var isInputActive: Bool  // Para manejar el teclado
+    @FocusState private var isInputActive: Bool  // Manejo del teclado
 
     var body: some View {
         ZStack {
             AnimatedBackground()
             BlurView()
-
+            
             VStack {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        VStack(spacing: 8) {
+                        LazyVStack(spacing: 8) {
                             ForEach(viewModel.messages) { message in
                                 messageView(message)
                                     .transition(.move(edge: .bottom).combined(with: .opacity))
+                                    .id(message.id)
                             }
 
                             if viewModel.isTyping {
@@ -34,15 +35,22 @@ struct ChatView: View {
                         .padding(.top, 10)
                     }
                     .onChange(of: viewModel.messages.count) { _ in
-                        if let lastMessage = viewModel.messages.last {
-                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                        DispatchQueue.main.async {
+                            if let lastMessage = viewModel.messages.last {
+                                proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                            }
                         }
                     }
                 }
-                
+
                 inputBar()
             }
-            .background(Color(UIColor.systemGroupedBackground).opacity(0.2))
+            .background(
+                LinearGradient(gradient: Gradient(colors: [
+                    Color.black.opacity(0.05),
+                    Color.black.opacity(0.2)
+                ]), startPoint: .top, endPoint: .bottom)
+            )
             .animation(.easeInOut, value: viewModel.messages.count)
 
             if viewModel.messages.isEmpty {
@@ -85,27 +93,7 @@ struct ChatView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: 250, alignment: .trailing)
                     .padding(.trailing, 10)
-                    .contentShape(Rectangle()) // 🔹 Fuerza a que solo esta área sea interactiva
-                    .contextMenu {
-                        Button(action: { viewModel.copyMessage(message) }) {
-                            Label("Copy", systemImage: "doc.on.doc")
-                        }
-                        Button(action: { viewModel.editMessage(message) }) {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        Button(action: { viewModel.replyToMessage(message) }) {
-                            Label("Reply", systemImage: "arrowshape.turn.up.left")
-                        }
-                        Button(action: { viewModel.speakMessage(message) }) {
-                            Label("Read Aloud", systemImage: "speaker.2.fill")
-                        }
-                        Button(action: { viewModel.shareMessage(message.text) }) {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                        }
-                        Button(role: .destructive, action: { viewModel.deleteMessage(message) }) {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
+                    .accessibilityLabel("You: \(message.text)")
             } else {
                 Text(message.text)
                     .padding(12)
@@ -116,21 +104,7 @@ struct ChatView: View {
                     .foregroundColor(.primary)
                     .frame(maxWidth: 250, alignment: .leading)
                     .padding(.leading, 10)
-                    .contentShape(Rectangle()) // 🔹 Limita la interacción solo a la burbuja
-                    .contextMenu {
-                        Button(action: { viewModel.copyMessage(message) }) {
-                            Label("Copy", systemImage: "doc.on.doc")
-                        }
-                        Button(action: { viewModel.replyToMessage(message) }) {
-                            Label("Reply", systemImage: "arrowshape.turn.up.left")
-                        }
-                        Button(action: { viewModel.speakMessage(message) }) {
-                            Label("Read Aloud", systemImage: "speaker.2.fill")
-                        }
-                        Button(action: { viewModel.shareMessage(message.text) }) {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                        }
-                    }
+                    .accessibilityLabel("AI: \(message.text)")
                 Spacer()
             }
         }
@@ -139,9 +113,13 @@ struct ChatView: View {
 
     private func typingIndicator() -> some View {
         HStack {
-            Text("AI is typing...")
-                .italic()
-                .foregroundColor(.gray)
+            Circle().frame(width: 8, height: 8).foregroundColor(.gray).opacity(0.3)
+                .animation(Animation.easeInOut(duration: 0.6).repeatForever(), value: viewModel.isTyping)
+            Circle().frame(width: 8, height: 8).foregroundColor(.gray).opacity(0.6)
+                .animation(Animation.easeInOut(duration: 0.6).repeatForever().delay(0.2), value: viewModel.isTyping)
+            Circle().frame(width: 8, height: 8).foregroundColor(.gray).opacity(1)
+                .animation(Animation.easeInOut(duration: 0.6).repeatForever().delay(0.4), value: viewModel.isTyping)
+            
             Spacer()
         }
         .padding(.horizontal, 16)
@@ -154,22 +132,24 @@ struct ChatView: View {
                 .background(Color(UIColor.tertiarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .focused($isInputActive)
+                .accessibilityLabel("Message input field")
 
             Button(action: viewModel.sendMessage) {
                 Image(systemName: "paperplane.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(viewModel.inputText.isEmpty ? .gray : .white)
+                    .foregroundColor(.white)
                     .padding()
                     .background(viewModel.inputText.isEmpty ? Color(UIColor.systemGray4) : Color.blue)
                     .clipShape(Circle())
+                    .scaleEffect(viewModel.inputText.isEmpty ? 0.9 : 1.0) // Animación sutil
             }
             .disabled(viewModel.inputText.isEmpty)
+            .animation(.spring(), value: viewModel.inputText)
         }
         .padding()
-        .animation(.easeInOut(duration: 0.3), value: isInputActive) // 🔹 Suaviza la animación del teclado
+        .animation(.easeInOut(duration: 0.3), value: isInputActive)
     }
 }
-
 struct AnimatedBackground: View {
     @State private var circles: [CircleData] = (0..<5).map { _ in CircleData() }
 
