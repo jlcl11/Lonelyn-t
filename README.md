@@ -19,7 +19,7 @@
   <img src="https://img.shields.io/badge/Swift-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift">
   <img src="https://img.shields.io/badge/SwiftUI-007AFF?style=for-the-badge&logo=swift&logoColor=white" alt="SwiftUI">
   <img src="https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="HuggingFace">
-  <img src="https://img.shields.io/badge/AVSpeechSynthesizer-30D158?style=for-the-badge&logo=apple&logoColor=white" alt="AVSpeech">
+  <img src="https://img.shields.io/badge/AVSpeechSynth-30D158?style=for-the-badge&logo=apple&logoColor=white" alt="AVSpeech">
 </p>
 
 ---
@@ -49,16 +49,13 @@ Replies come from HuggingFace's BlenderBot-400M. Messages can be copied, shared,
 ## Architecture
 
 ```
-Lonelynt/
-  Views/
-    ChatView.swift            Main chat surface
-    AnimatedBackground.swift  Mesh + blur background layers
-    BlurView.swift            Glassmorphism primitive
-  ViewModels/
-    ChatViewModel.swift       Chat state and reply pipeline
-  Models/
+Lonelyn't/
+  View/
+    ContentView.swift         ChatView surface — message list, input, glass background
+  ViewModel/
+    ChatViewModel.swift       Chat state, AI reply pipeline, speech, haptics
+  Model/
     ChatMessage.swift         Message model with reply metadata
-  Services/
     ChatService.swift         HuggingFace REST integration
 ```
 
@@ -92,8 +89,8 @@ Get a free token at [huggingface.co](https://huggingface.co) → Account Setting
 | **MVVM** | Chat state separated from view layer |
 | **URLSession + async/await** | HuggingFace REST client |
 | **AVFoundation** | `AVSpeechSynthesizer` for text-to-speech |
-| **CoreHaptics** | Haptic feedback on actions |
-| **Custom glass shaders** | Background mesh + animated blur layers |
+| **UIKit haptics** | `UIImpactFeedbackGenerator` for tactile feedback on actions |
+| **Glass background** | Animated background + blur effect inside `ContentView` |
 
 ---
 
