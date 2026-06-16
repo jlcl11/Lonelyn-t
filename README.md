@@ -1,92 +1,102 @@
-# Lonelyn't 🗨️✨  
+<p align="center">
+  <img width="1500" alt="Lonelyn't" src="https://github.com/user-attachments/assets/a663ed3e-a47b-4689-965b-63181aeb7e5d" />
+</p>
 
-### A Smart and Aesthetic Chat Application  
+<h1 align="center">
+  <br>
+  Lonelyn't 🗨️✨
+  <br>
+</h1>
 
-![iPhone 16 Pro](https://github.com/user-attachments/assets/a663ed3e-a47b-4689-965b-63181aeb7e5d)
+<h3 align="center">An AI chat companion with glassmorphism, haptics and a soul.</h3>
 
-![SwiftUI](https://img.shields.io/badge/SwiftUI-Framework-orange)  
-![iOS](https://img.shields.io/badge/iOS-15%2B-blue)  
-![Xcode](https://img.shields.io/badge/Xcode-14%2B-lightgrey)  
+<p align="center">
+  <strong>SwiftUI</strong> &nbsp;·&nbsp; <strong>HuggingFace BlenderBot</strong> &nbsp;·&nbsp; <strong>Text-to-Speech</strong> &nbsp;·&nbsp; <strong>Glassmorphism UI</strong>
+</p>
 
-## 📌 Description  
-
-**Lonelyn't** is a **SwiftUI-powered** chat application that provides a **smooth and engaging experience** with an animated background, glassmorphism effects, and **AI-generated responses**.  
-
-The goal is to create an intuitive, visually appealing, and functional chat environment with features like AI-powered responses, text-to-speech, message editing, contextual menus, and more.  
-
----
-
-## ✨ Features  
-
-✔️ **Modern & animated UI** with moving backgrounds  
-✔️ **AI-powered responses** using BlenderBot  
-✔️ **Glassmorphism effect** for a stylish look  
-✔️ **Real-time typing indicator**  
-✔️ **Copy, delete, share, and listen to messages**  
-✔️ **Context menu for message actions**  
-✔️ **Auto-scroll to the latest message**  
-✔️ **Reply to messages with formatted text**  
-✔️ **Haptic feedback and smooth animations**  
+<p align="center">
+  <img src="https://img.shields.io/badge/iOS_15%2B-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS 15+">
+  <img src="https://img.shields.io/badge/Swift-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift">
+  <img src="https://img.shields.io/badge/SwiftUI-007AFF?style=for-the-badge&logo=swift&logoColor=white" alt="SwiftUI">
+  <img src="https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="HuggingFace">
+  <img src="https://img.shields.io/badge/AVSpeechSynthesizer-30D158?style=for-the-badge&logo=apple&logoColor=white" alt="AVSpeech">
+</p>
 
 ---
 
-## 🛠 Installation  
+## What is Lonelyn't
 
-### 1️⃣ Requirements  
+Lonelyn't is a SwiftUI chat experience that wraps an AI conversational model behind a layered, animated, glass-and-mesh UI. It explores how to make a single-purpose chat feel premium: motion, depth, micro-interactions, sound — without losing focus on the conversation itself.
 
-- Xcode 14+  
-- iOS 15+  
-- Internet connection (for AI responses)  
-
-### 2️⃣ Clone the repository  
-
-```bash
-git clone https://github.com/your-username/Lonelynt.git
-cd Lonelynt
-```
----
-
-## 🚀 Usage  
-
-1. **Start a conversation**: Type a message and hit send.  
-2. **Interact with messages**: Long-press a message to copy, delete, or share it.  
-3. **AI response**: The app will generate a reply automatically.  
-4. **Enjoy smooth animations**: Experience a beautifully designed interface.  
+Replies come from HuggingFace's BlenderBot-400M. Messages can be copied, shared, replied to, deleted or read out loud with the system speech synthesiser.
 
 ---
 
-## ⚠️ Important Note: Update the API Key  
+## Features
 
-The app uses Hugging Face's **BlenderBot-400M** model for AI responses.  
-You **must replace the API key** in `ChatService.swift` with your own.  
+| | |
+|---|---|
+| **AI replies** | Conversations powered by HuggingFace's BlenderBot-400M via REST. |
+| **Glass UI** | Animated mesh background, blur layers, semi-transparent bubbles. |
+| **Typing indicator** | Live indicator while the model generates a reply. |
+| **Message actions** | Long-press for context menu: copy, delete, share, listen. |
+| **Speak it** | One-tap text-to-speech with `AVSpeechSynthesizer`. |
+| **Reply threading** | Reply to a specific message with formatted preview. |
+| **Polish** | Haptic feedback, auto-scroll to latest message, smooth springs. |
 
-### How to get an API key?  
+---
 
-1. **Sign up on Hugging Face**: [https://huggingface.co](https://huggingface.co)  
-2. **Generate an API key** from your account settings.  
-3. **Replace the API key** in the `ChatService.swift` file:  
-
-```swift
-private static let apiKey = "Bearer YOUR_API_KEY_HERE"
-```
-
-## 🏗️ Project Structure  
+## Architecture
 
 ```
 Lonelynt/
-│── Views/
-│   ├── ChatView.swift         # Main chat interface
-│   ├── AnimatedBackground.swift  # Dynamic animated backgrounds
-│   ├── BlurView.swift         # Glassmorphism blur effect
-│── ViewModels/
-│   ├── ChatViewModel.swift    # Handles chat logic
-│── Models/
-│   ├── ChatMessage.swift      # Message model
-│── Services/
-│   ├── ChatService.swift      # AI response integration
-│── Assets/
-│   ├── Icon.png               # App icon
-│── README.md                  # Documentation
-│── Lonelynt.xcodeproj         # Xcode project
+  Views/
+    ChatView.swift            Main chat surface
+    AnimatedBackground.swift  Mesh + blur background layers
+    BlurView.swift            Glassmorphism primitive
+  ViewModels/
+    ChatViewModel.swift       Chat state and reply pipeline
+  Models/
+    ChatMessage.swift         Message model with reply metadata
+  Services/
+    ChatService.swift         HuggingFace REST integration
 ```
 
+---
+
+## Quick Start
+
+**Requirements:** Xcode 14+ · iOS 15+ · Internet connection · Free HuggingFace API token
+
+```bash
+git clone https://github.com/jlcl11/Lonelyn-t.git
+cd Lonelyn-t
+open Lonelynt.xcodeproj
+```
+
+Drop your HuggingFace token into `ChatService.swift`:
+
+```swift
+private static let apiKey = "Bearer YOUR_TOKEN_HERE"
+```
+
+Get a free token at [huggingface.co](https://huggingface.co) → Account Settings → Access Tokens.
+
+---
+
+## Tech Stack
+
+| Technology | Role |
+|---|---|
+| **SwiftUI** | Declarative UI with custom transitions |
+| **MVVM** | Chat state separated from view layer |
+| **URLSession + async/await** | HuggingFace REST client |
+| **AVFoundation** | `AVSpeechSynthesizer` for text-to-speech |
+| **CoreHaptics** | Haptic feedback on actions |
+| **Custom glass shaders** | Background mesh + animated blur layers |
+
+---
+
+<p align="center">
+  Built by <a href="https://github.com/jlcl11">Jose Luis Corral Lopez</a> · A portfolio look at SwiftUI motion + AI
+</p>
